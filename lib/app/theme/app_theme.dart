@@ -64,10 +64,16 @@ abstract class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: ButtonStyle(
-          backgroundColor:
-              const WidgetStatePropertyAll(AppColors.primary),
-          foregroundColor:
-              const WidgetStatePropertyAll(AppColors.textLight),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.primary,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? AppColors.textMuted
+                : AppColors.textLight,
+          ),
           elevation: const WidgetStatePropertyAll(0),
           padding: const WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
@@ -80,11 +86,19 @@ abstract class AppTheme {
           ),
         ),
       ),
-      elevatedButtonTheme: const ElevatedButtonThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: WidgetStatePropertyAll(AppColors.primary),
-          foregroundColor: WidgetStatePropertyAll(AppColors.textLight),
-          elevation: WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? AppColors.primary.withValues(alpha: 0.4)
+                : AppColors.primary,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? AppColors.textMuted
+                : AppColors.textLight,
+          ),
+          elevation: const WidgetStatePropertyAll(0),
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
@@ -93,11 +107,19 @@ abstract class AppTheme {
           ),
         ),
       ),
-      outlinedButtonTheme: const OutlinedButtonThemeData(
+      outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          foregroundColor: WidgetStatePropertyAll(AppColors.primary),
-          elevation: WidgetStatePropertyAll(0),
-          side: WidgetStatePropertyAll(borderSide),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? AppColors.textMuted
+                : AppColors.primary,
+          ),
+          side: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? const BorderSide(color: AppColors.borderLight)
+                : borderSide,
+          ),
+          elevation: const WidgetStatePropertyAll(0),
           padding: WidgetStatePropertyAll(
             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
@@ -197,7 +219,7 @@ abstract class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
           side: borderSide,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sm)),
         ),
       ),
       snackBarTheme: const SnackBarThemeData(
@@ -213,10 +235,162 @@ abstract class AppTheme {
         iconColor: AppColors.textMuted,
         textColor: AppColors.textMain,
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? AppColors.primary
+                : AppColors.bgInput,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? AppColors.textLight
+                : AppColors.textMuted,
+          ),
+          side: const WidgetStatePropertyAll(borderSide),
+          shape: const WidgetStatePropertyAll(
+            RoundedRectangleBorder(side: borderSide, borderRadius: radius),
+          ),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.bgPrimary
+              : AppColors.textMuted,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.primary
+              : AppColors.bgInput,
+        ),
+        trackOutlineColor: const WidgetStatePropertyAll(AppColors.border),
+        trackOutlineWidth: const WidgetStatePropertyAll(1.5),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.primary
+              : AppColors.bgInput,
+        ),
+        checkColor: const WidgetStatePropertyAll(AppColors.textLight),
+        side: borderSide,
+        shape: const RoundedRectangleBorder(borderRadius: radius),
+      ),
+      sliderTheme: SliderThemeData(
+        trackHeight: 4,
+        activeTrackColor: AppColors.primary,
+        inactiveTrackColor: AppColors.bgInput,
+        thumbColor: AppColors.primary,
+        disabledThumbColor: AppColors.textMuted,
+        overlayColor: AppColors.primary.withValues(alpha: 0.25),
+        trackShape: const RectangularSliderTrackShape(),
+        thumbShape: const _SquareThumbShape(),
+      ),
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: AppColors.bgSecondary,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          side: borderSide,
+          borderRadius: radius,
+        ),
+        dayShape: const WidgetStatePropertyAll<RoundedRectangleBorder>(
+          RoundedRectangleBorder(borderRadius: radius),
+        ),
+        dayBackgroundColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? AppColors.primary
+              : null,
+        ),
+        dayForegroundColor: WidgetStateProperty.resolveWith(
+          (states) {
+            if (states.contains(WidgetState.selected)) {
+              return AppColors.textLight;
+            }
+            if (states.contains(WidgetState.disabled)) {
+              return AppColors.textMuted;
+            }
+            return AppColors.textMain;
+          },
+        ),
+        todayForegroundColor: const WidgetStatePropertyAll(AppColors.primary),
+      ),
+      timePickerTheme: TimePickerThemeData(
+        backgroundColor: AppColors.bgSecondary,
+        shape: const RoundedRectangleBorder(
+          side: borderSide,
+          borderRadius: radius,
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: AppColors.bgSecondary,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: const RoundedRectangleBorder(
+          side: borderSide,
+          borderRadius: radius,
+        ),
+        textStyle: const TextStyle(color: AppColors.textMain, fontSize: 13),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: AppColors.bgSecondary,
+          border: Border.fromBorderSide(borderSide),
+          borderRadius: radius,
+        ),
+        textStyle: const TextStyle(color: AppColors.textMain, fontSize: 12),
+      ),
       textTheme: base.textTheme.apply(
         bodyColor: AppColors.textMain,
         displayColor: AppColors.textLight,
       ),
+    );
+  }
+}
+
+/// Thumb do slider em quadrado de raio 2, sem sombra, com borda dura.
+class _SquareThumbShape extends SliderComponentShape {
+  const _SquareThumbShape();
+
+  static const double _size = 16;
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) =>
+      const Size.square(_size);
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    required Animation<double> activationAnimation,
+    required Animation<double> enableAnimation,
+    required bool isDiscrete,
+    required TextPainter labelPainter,
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required TextDirection textDirection,
+    required double value,
+    required double textScaleFactor,
+    required Size sizeWithOverflow,
+  }) {
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: center, width: _size, height: _size),
+      const Radius.circular(AppRadius.sm),
+    );
+    final canvas = context.canvas;
+    canvas.drawRRect(
+      rrect,
+      Paint()..color = sliderTheme.thumbColor ?? AppColors.primary,
+    );
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = AppColors.border,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../app/shell/app_shell.dart';
 import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/app_radius.dart';
 import '../../../app/theme/app_spacing.dart';
 import '../../../features/onboarding/data/onboarding_storage.dart';
 import '../../../features/onboarding/presentation/pages/onboarding_page.dart';
@@ -72,7 +73,7 @@ class _SplashPageState extends State<SplashPage> {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.primary),
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: const Text(
                 'C',
@@ -90,7 +91,7 @@ class _SplashPageState extends State<SplashPage> {
               style: TextStyle(
                 fontFamily: 'monospace',
                 fontSize: 14,
-                letterSpacing: 6,
+                letterSpacing: 4,
                 color: AppColors.textMuted,
               ),
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/onboarding_item.dart';
 
@@ -24,7 +25,7 @@ class OnboardingContent extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.primary),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
               color: AppColors.primaryHover.withValues(alpha: 0.25),
             ),
             child: Icon(item.icon, size: 48, color: AppColors.primary),

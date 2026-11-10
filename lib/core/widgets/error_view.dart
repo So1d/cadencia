@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 
 /// Estado **erro**: explica o que houve em português simples e oferece saída.
@@ -20,7 +21,6 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
     return Center(
@@ -34,7 +34,7 @@ class ErrorView extends StatelessWidget {
               child: Icon(
                 Icons.cloud_off_outlined,
                 size: 48,
-                color: scheme.outline,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -46,7 +46,7 @@ class ErrorView extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Text(
               message,
-              style: text.bodyMedium?.copyWith(color: scheme.outline),
+              style: text.bodyMedium?.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

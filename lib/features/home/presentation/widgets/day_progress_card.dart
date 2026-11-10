@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 
 /// Cartão de progresso do dia.
@@ -50,7 +51,7 @@ class DayProgressCard extends StatelessWidget {
             Text(
               label,
               style: text.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.outline,
+                color: AppColors.textMuted,
               ),
             ),
           ],

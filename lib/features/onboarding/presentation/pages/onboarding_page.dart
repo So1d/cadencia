@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../app/shell/app_shell.dart';
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../data/onboarding_storage.dart';
 import '../../domain/onboarding_item.dart';
@@ -62,7 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
           'CADÊNCIA',
           style: TextStyle(
             fontFamily: 'monospace',
-            fontSize: 13,
+            fontSize: 14,
             letterSpacing: 4,
             color: AppColors.textMuted,
           ),
@@ -109,7 +110,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             color: i == _currentPage
                                 ? AppColors.primary
                                 : AppColors.borderLight,
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
                           ),
                         ),
                     ],

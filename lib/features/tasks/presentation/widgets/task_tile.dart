@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/date_helpers.dart';
 import '../../domain/task.dart';
 import 'task_priority_view.dart';
@@ -22,7 +23,6 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final due = task.dueDate;
 
     return Card(
@@ -42,7 +42,7 @@ class TaskTile extends StatelessWidget {
           task.title,
           style: TextStyle(
             decoration: task.done ? TextDecoration.lineThrough : null,
-            color: task.done ? scheme.outline : null,
+            color: task.done ? AppColors.textMuted : null,
           ),
         ),
         subtitle: (due == null && (task.notes == null || task.notes!.isEmpty))

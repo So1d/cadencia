@@ -19,9 +19,8 @@ class ProfileSummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final scheme = Theme.of(context).colorScheme;
     final name = profile.name;
-    final secondary = text.bodyMedium?.copyWith(color: scheme.outline);
+    final secondary = text.bodyMedium?.copyWith(color: AppColors.textMuted);
 
     return Card(
       child: Padding(

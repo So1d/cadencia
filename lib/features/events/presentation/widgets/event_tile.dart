@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/app_radius.dart';
 import '../../../../core/utils/date_helpers.dart';
 import '../../domain/calendar_event.dart';
 
@@ -29,7 +30,7 @@ class EventTile extends StatelessWidget {
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: scheme.primaryContainer,
-        borderRadius: BorderRadius.circular(2),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
         border: Border.all(color: scheme.outlineVariant),
       ),
       child: Icon(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/utils/date_helpers.dart';
 import '../../../../state/schedule_controller.dart';
@@ -119,7 +120,7 @@ class EventDetailsPage extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: scheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     border: Border.all(color: scheme.outlineVariant),
                   ),
                   child: Icon(
@@ -144,7 +145,8 @@ class EventDetailsPage extends StatelessWidget {
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       '$date • $time',
-                      style: text.bodyMedium?.copyWith(color: scheme.outline),
+                      style: text.bodyMedium
+                          ?.copyWith(color: AppColors.textMuted),
                     ),
                   ],
                 ),

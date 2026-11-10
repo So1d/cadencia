@@ -4,6 +4,7 @@ import 'package:table_calendar/table_calendar.dart' hide isSameDay;
 import '../../../../app/routes/fade_route.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_layout.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/load_status.dart';
 import '../../../../core/utils/date_helpers.dart';
@@ -124,11 +125,11 @@ class _CalendarPageState extends State<CalendarPage> {
                       const TextStyle(color: AppColors.textMuted),
                   todayDecoration: BoxDecoration(
                     color: AppColors.primaryHover,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   selectedDecoration: BoxDecoration(
                     color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   markerDecoration: const BoxDecoration(
                     color: AppColors.warning,

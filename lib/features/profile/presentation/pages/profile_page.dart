@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/common/widgets/status_message.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_layout.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/widgets/loading_view.dart';
@@ -78,7 +79,7 @@ class _HowItWorksCard extends StatelessWidget {
               style: text.labelSmall?.copyWith(
                 fontFamily: 'monospace',
                 letterSpacing: 2,
-                color: Theme.of(context).colorScheme.outline,
+                color: AppColors.textMuted,
               ),
             ),
             const SizedBox(height: AppSpacing.sm),

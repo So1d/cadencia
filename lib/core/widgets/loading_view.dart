@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 
 /// Estado **carregando**: indicador centralizado, com texto para leitores de
@@ -29,7 +30,7 @@ class LoadingView extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: Theme.of(context).colorScheme.outline),
+                  ?.copyWith(color: AppColors.textMuted),
             ),
           ],
         ),

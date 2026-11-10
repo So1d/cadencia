@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/theme/app_colors.dart';
 import '../../app/theme/app_spacing.dart';
 
 /// Estado **vazio**: a consulta funcionou, mas não há registros ainda.
@@ -42,7 +43,7 @@ class EmptyView extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .bodyMedium
-                  ?.copyWith(color: scheme.outline),
+                  ?.copyWith(color: AppColors.textMuted),
               textAlign: TextAlign.center,
             ),
             if (action != null) ...[
