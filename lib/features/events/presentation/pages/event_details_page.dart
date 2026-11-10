@@ -158,7 +158,7 @@ class EventDetailsPage extends StatelessWidget {
             Text(
               'OBSERVAÇÕES',
               style: text.labelSmall?.copyWith(
-                fontFamily: 'monospace',
+                fontFamily: 'Fira Code',
                 letterSpacing: 2,
                 color: AppColors.textMuted,
               ),

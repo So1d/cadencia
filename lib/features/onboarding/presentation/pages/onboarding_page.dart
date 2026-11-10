@@ -62,7 +62,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         title: const Text(
           'CADÊNCIA',
           style: TextStyle(
-            fontFamily: 'monospace',
+            fontFamily: 'Fira Code',
             fontSize: 14,
             letterSpacing: 4,
             color: AppColors.textMuted,

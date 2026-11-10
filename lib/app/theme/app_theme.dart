@@ -37,7 +37,7 @@ abstract class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.bgPrimary,
-      fontFamily: null, // system-ui por padrão, igual o CSS
+      fontFamily: 'Fira Code', // mono em todo o app (antes: system-ui)
     );
 
     return base.copyWith(

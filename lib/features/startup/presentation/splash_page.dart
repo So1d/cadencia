@@ -78,7 +78,7 @@ class _SplashPageState extends State<SplashPage> {
               child: const Text(
                 'C',
                 style: TextStyle(
-                  fontFamily: 'monospace',
+                  fontFamily: 'Fira Code',
                   fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: AppColors.primary,
@@ -89,7 +89,7 @@ class _SplashPageState extends State<SplashPage> {
             const Text(
               'CADÊNCIA',
               style: TextStyle(
-                fontFamily: 'monospace',
+                fontFamily: 'Fira Code',
                 fontSize: 14,
                 letterSpacing: 4,
                 color: AppColors.textMuted,

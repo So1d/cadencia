@@ -59,7 +59,7 @@ class HomePage extends StatelessWidget {
         title: const Text(
           'CADÊNCIA',
           style: TextStyle(
-            fontFamily: 'monospace',
+            fontFamily: 'Fira Code',
             fontSize: 14,
             letterSpacing: 4,
           ),

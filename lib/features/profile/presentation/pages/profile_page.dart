@@ -77,7 +77,7 @@ class _HowItWorksCard extends StatelessWidget {
             Text(
               'COMO O PERFIL MUDA O APP',
               style: text.labelSmall?.copyWith(
-                fontFamily: 'monospace',
+                fontFamily: 'Fira Code',
                 letterSpacing: 2,
                 color: AppColors.textMuted,
               ),
