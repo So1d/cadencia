@@ -9,6 +9,12 @@ import 'app_spacing.dart';
 /// O visual é decidido **aqui**, não espalhado pelas telas. Trocar a paleta ou
 /// o formato dos botões é mexer neste arquivo, e só nele.
 abstract class AppTheme {
+  /// Família do app. Vai explícita em todo `TextStyle` cru do tema: o Material
+  /// injeta esses estilos via `DefaultTextStyle`, e aí a família **não** é
+  /// herdada do tema — sem isso, títulos de AppBar, labels de campo, diálogo,
+  /// popup e tooltip saem na fonte do sistema.
+  static const String fontFamily = 'Fira Code';
+
   static const BorderRadius radius =
       BorderRadius.all(Radius.circular(AppRadius.sm));
   static const BorderSide borderSide =
@@ -37,7 +43,7 @@ abstract class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.bgPrimary,
-      fontFamily: 'Fira Code', // mono em todo o app (antes: system-ui)
+      fontFamily: fontFamily, // mono em todo o app (antes: system-ui)
     );
 
     return base.copyWith(
@@ -48,6 +54,7 @@ abstract class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: Border(bottom: borderSide),
         titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
           fontSize: 18,
           fontWeight: FontWeight.w700,
           color: AppColors.textLight,
@@ -82,7 +89,7 @@ abstract class AppTheme {
             RoundedRectangleBorder(side: borderSide, borderRadius: radius),
           ),
           textStyle: const WidgetStatePropertyAll(
-            TextStyle(fontWeight: FontWeight.w700),
+            TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w700),
           ),
         ),
       ),
@@ -131,7 +138,7 @@ abstract class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600),
           shape: const RoundedRectangleBorder(borderRadius: radius),
         ),
       ),
@@ -151,9 +158,18 @@ abstract class AppTheme {
           borderSide: BorderSide(color: AppColors.borderFocus),
           borderRadius: radius,
         ),
-        labelStyle: TextStyle(color: AppColors.textMuted),
-        helperStyle: TextStyle(color: AppColors.textMuted),
-        counterStyle: TextStyle(color: AppColors.textMuted),
+        labelStyle: TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMuted,
+        ),
+        helperStyle: TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMuted,
+        ),
+        counterStyle: TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMuted,
+        ),
       ),
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
@@ -168,6 +184,7 @@ abstract class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return TextStyle(
+            fontFamily: fontFamily,
             fontSize: 11,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected ? AppColors.textLight : AppColors.textMuted,
@@ -201,8 +218,9 @@ abstract class AppTheme {
         selectedColor: AppColors.primaryHover,
         side: borderSide,
         shape: const RoundedRectangleBorder(borderRadius: radius),
-        labelStyle: const TextStyle(color: AppColors.textMain),
-        secondaryLabelStyle: const TextStyle(color: AppColors.textLight),
+        labelStyle: const TextStyle(fontFamily: fontFamily, color: AppColors.textMain),
+        secondaryLabelStyle:
+            const TextStyle(fontFamily: fontFamily, color: AppColors.textLight),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.bgSecondary,
@@ -212,11 +230,13 @@ abstract class AppTheme {
           borderRadius: radius,
         ),
         titleTextStyle: const TextStyle(
+          fontFamily: fontFamily,
           color: AppColors.textLight,
           fontSize: 18,
           fontWeight: FontWeight.w700,
         ),
-        contentTextStyle: const TextStyle(color: AppColors.textMain),
+        contentTextStyle:
+            const TextStyle(fontFamily: fontFamily, color: AppColors.textMain),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.bgSecondary,
@@ -229,7 +249,11 @@ abstract class AppTheme {
       ),
       snackBarTheme: const SnackBarThemeData(
         backgroundColor: AppColors.bgSecondary,
-        contentTextStyle: TextStyle(color: AppColors.textMain, fontSize: 12),
+        contentTextStyle: TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMain,
+          fontSize: 12,
+        ),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           side: borderSide,
@@ -257,7 +281,7 @@ abstract class AppTheme {
             RoundedRectangleBorder(side: borderSide, borderRadius: radius),
           ),
           textStyle: const WidgetStatePropertyAll(
-            TextStyle(fontWeight: FontWeight.w700),
+            TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w700),
           ),
         ),
       ),
@@ -338,7 +362,11 @@ abstract class AppTheme {
           side: borderSide,
           borderRadius: radius,
         ),
-        textStyle: const TextStyle(color: AppColors.textMain, fontSize: 13),
+        textStyle: const TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMain,
+          fontSize: 13,
+        ),
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
@@ -346,7 +374,11 @@ abstract class AppTheme {
           border: Border.fromBorderSide(borderSide),
           borderRadius: radius,
         ),
-        textStyle: const TextStyle(color: AppColors.textMain, fontSize: 12),
+        textStyle: const TextStyle(
+          fontFamily: fontFamily,
+          color: AppColors.textMain,
+          fontSize: 12,
+        ),
       ),
       textTheme: base.textTheme.apply(
         bodyColor: AppColors.textMain,
