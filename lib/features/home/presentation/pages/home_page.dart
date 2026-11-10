@@ -112,7 +112,7 @@ class HomePage extends StatelessWidget {
   void _quickAdd(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      showDragHandle: true,
+      showDragHandle: false,
       builder: (sheetContext) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

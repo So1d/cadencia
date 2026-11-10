@@ -133,7 +133,8 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   markerDecoration: const BoxDecoration(
                     color: AppColors.warning,
-                    shape: BoxShape.circle,
+                    borderRadius:
+                        BorderRadius.all(Radius.circular(AppRadius.sm)),
                   ),
                   markersMaxCount: 3,
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
+import '../../app/theme/app_radius.dart';
 import '../../app/theme/app_spacing.dart';
 
 /// Estado **vazio**: a consulta funcionou, mas não há registros ainda.
@@ -33,7 +34,7 @@ class EmptyView extends StatelessWidget {
               height: 64,
               decoration: BoxDecoration(
                 color: scheme.primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(icon, size: 32, color: scheme.primary),
             ),

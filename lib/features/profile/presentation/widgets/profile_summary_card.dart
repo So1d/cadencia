@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/theme/app_colors.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/entities/profile_focus.dart';
 import '../../domain/entities/user_profile.dart';
@@ -31,16 +32,26 @@ class ProfileSummaryCard extends StatelessWidget {
             Row(
               children: [
                 ExcludeSemantics(
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primaryHover,
-                    foregroundColor: AppColors.textLight,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: const BoxDecoration(
+                      color: AppColors.primaryHover,
+                      borderRadius:
+                          BorderRadius.all(Radius.circular(AppRadius.sm)),
+                    ),
                     child: name == null
-                        ? const Icon(Icons.person_outline)
+                        ? const Icon(
+                            Icons.person_outline,
+                            color: AppColors.textLight,
+                          )
                         : Text(
                             name.characters.first.toUpperCase(),
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textLight,
+                            ),
                           ),
                   ),
                 ),

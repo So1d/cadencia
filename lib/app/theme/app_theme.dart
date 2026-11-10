@@ -132,6 +132,7 @@ abstract class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
           textStyle: const TextStyle(fontWeight: FontWeight.w600),
+          shape: const RoundedRectangleBorder(borderRadius: radius),
         ),
       ),
       inputDecorationTheme: const InputDecorationTheme(
@@ -178,6 +179,9 @@ abstract class AppTheme {
             color: selected ? AppColors.textLight : AppColors.textMuted,
           );
         }),
+        indicatorShape: const RoundedRectangleBorder(
+          borderRadius: radius,
+        ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
@@ -217,6 +221,7 @@ abstract class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.bgSecondary,
         surfaceTintColor: Colors.transparent,
+        showDragHandle: false,
         shape: RoundedRectangleBorder(
           side: borderSide,
           borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.sm)),
