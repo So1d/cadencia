@@ -10,6 +10,13 @@ constante, consulta feita no build de cada linha. A entidade em si continua na a
 (`ScheduleController`): duplicar a `Task` dentro do controlador de favoritos faria a cópia ficar
 desatualizada depois de uma edição.
 
+**Persistência:** o controlador depende de um `FavoritesRepository` (contrato de leitura/gravação
+da relação de ids). A implementação `LocalFavoritesRepository` grava em `shared_preferences` sob a
+chave `cadencia_favorites_v1`, num envelope com `schema_version`, e tolera lista solta e dado
+corrompido. A relação é carregada no `initState` de `CadenciaApp` e regravada a cada marcação,
+remoção ou exclusão de tarefa. A etapa permite que a seleção se perca ao reiniciar; aqui ela é
+mantida, inclusive a ordem.
+
 **Injeção:** `ChangeNotifierProvider<FavoritesController>` em `CadenciaApp`, acima do
 `MaterialApp`, para que as rotas empilhadas no `Navigator` (o detalhe da tarefa) também alcancem o
 mesmo controlador. As telas leem com `context.watch` dentro do `build` e disparam ações com
@@ -32,11 +39,13 @@ sem comunicação direta entre as telas, e a contagem do filtro acompanha sozinh
 | B | No detalhe, desmarque a estrela e volte: a listagem e a contagem "Favoritas (n)" refletem a remoção. |
 | C | Marque duas tarefas em sequência e abra o filtro "Favoritas": a última marcada aparece primeiro. |
 | D | No filtro "Favoritas", desmarque as duas pela estrela: lista e contagem atualizam e, vazia, aparece a mensagem orientativa. |
-| E | Feche e abra o app: a seleção se perde (estado em memória, como pede a etapa). |
+| E | Feche e abra o app: os favoritos continuam, na mesma ordem (a etapa permite perder; aqui persiste). |
 
 ## Arquivos
 
 - `lib/features/favorites/presentation/favorites_controller.dart` — o controlador.
+- `lib/features/favorites/domain/repositories/favorites_repository.dart` — contrato de persistência.
+- `lib/features/favorites/data/local_favorites_repository.dart` — gravação no aparelho.
 - `lib/features/favorites/presentation/widgets/favorite_button.dart` — botão acessível, reusado na linha e no detalhe.
 - `lib/features/tasks/presentation/pages/task_details_page.dart` — segundo ponto de interação.
 - `lib/features/tasks/presentation/pages/tasks_page.dart` — filtro "Favoritas" e estrela da linha.

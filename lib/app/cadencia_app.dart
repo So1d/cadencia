@@ -31,6 +31,7 @@ class _CadenciaAppState extends State<CadenciaApp> {
   late final AppDependencies _dependencies;
   late final ScheduleController _scheduleController;
   late final ProfileController _profileController;
+  late final FavoritesController _favoritesController;
 
   @override
   void initState() {
@@ -45,12 +46,18 @@ class _CadenciaAppState extends State<CadenciaApp> {
       eventRepository: _dependencies.eventRepository,
     );
     _profileController = ProfileController(_dependencies.profileRepository);
+    _favoritesController = FavoritesController(
+      repository: _dependencies.favoritesRepository,
+    );
+    // Os favoritos são um punhado de ids: carrega na abertura, antes da shell.
+    _favoritesController.load();
   }
 
   @override
   void dispose() {
     _scheduleController.dispose();
     _profileController.dispose();
+    _favoritesController.dispose();
     super.dispose();
   }
 
@@ -58,13 +65,12 @@ class _CadenciaAppState extends State<CadenciaApp> {
   Widget build(BuildContext context) {
     // Acima do MaterialApp: as rotas empilhadas também enxergam os escopos.
     //
-    // O FavoritesController entra pelo `provider`, como pede a Etapa 1: o
-    // `ChangeNotifierProvider` cria a instância sob demanda e a descarta junto
-    // com a subárvore, e as telas leem com `context.watch`/`context.read`.
-    return ChangeNotifierProvider<FavoritesController>(
-      create: (_) => FavoritesController(
-        initialIds: _dependencies.initialFavorites,
-      ),
+    // O FavoritesController entra pelo `provider`, como pede a Etapa 1: as
+    // telas leem com `context.watch`/`context.read`. A instância é criada aqui
+    // (e não no `create:`) porque precisamos disparar o `load()` no boot; o
+    // dispose continua explícito no State.
+    return ChangeNotifierProvider<FavoritesController>.value(
+      value: _favoritesController,
       child: ScheduleScope(
         controller: _scheduleController,
         child: ProfileScope(

@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../features/events/data/fake_event_repository.dart';
 import '../features/events/data/local_event_repository.dart';
 import '../features/events/domain/repositories/event_repository.dart';
+import '../features/favorites/data/fake_favorites_repository.dart';
+import '../features/favorites/data/local_favorites_repository.dart';
+import '../features/favorites/domain/repositories/favorites_repository.dart';
 import '../features/onboarding/data/onboarding_storage.dart';
 import '../features/profile/data/local_profile_repository.dart';
 import '../features/profile/domain/repositories/profile_repository.dart';
@@ -19,18 +22,17 @@ class AppDependencies {
     required this.taskRepository,
     required this.eventRepository,
     required this.profileRepository,
+    required this.favoritesRepository,
     required this.onboardingStorage,
-    this.initialFavorites = const [],
   });
 
   final TaskRepository taskRepository;
   final EventRepository eventRepository;
   final ProfileRepository profileRepository;
-  final OnboardingStorage onboardingStorage;
 
-  /// Favoritos já marcados na abertura — só o modo demo usa (o estado dos
-  /// favoritos é em memória, então a semente vem por aqui).
-  final List<String> initialFavorites;
+  /// Relação de favoritos (ids na ordem de escolha).
+  final FavoritesRepository favoritesRepository;
+  final OnboardingStorage onboardingStorage;
 
   /// App de verdade: tudo persistido no aparelho.
   factory AppDependencies.production() {
@@ -39,6 +41,7 @@ class AppDependencies {
       taskRepository: LocalTaskRepository(preferences: preferences),
       eventRepository: LocalEventRepository(preferences: preferences),
       profileRepository: LocalProfileRepository(preferences: preferences),
+      favoritesRepository: LocalFavoritesRepository(preferences: preferences),
       onboardingStorage: OnboardingStorage(preferences: preferences),
     );
   }
@@ -63,8 +66,11 @@ class AppDependencies {
         latency: latency,
       ),
       profileRepository: LocalProfileRepository(),
+      favoritesRepository: FakeFavoritesRepository(
+        seed: const [FakeTaskRepository.demoFavoriteId],
+        latency: Duration.zero,
+      ),
       onboardingStorage: OnboardingStorage(),
-      initialFavorites: const [FakeTaskRepository.demoFavoriteId],
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cadencia/app/theme/app_theme.dart';
+import 'package:cadencia/features/favorites/data/fake_favorites_repository.dart';
 import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_scope.dart';
@@ -7,6 +8,16 @@ import 'package:cadencia/state/schedule_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+
+/// Controlador de favoritos pronto para teste, com relação inicial opcional.
+FavoritesController buildFavorites({List<String> seed = const []}) {
+  return FavoritesController(
+    repository: FakeFavoritesRepository(
+      seed: seed,
+      latency: Duration.zero,
+    ),
+  );
+}
 
 /// Monta a árvore mínima usada pelos testes de widget: escopos + MaterialApp.
 ///
@@ -30,8 +41,8 @@ Widget wrapWithScopes({
     app = ScheduleScope(controller: schedule, child: app);
   }
 
-  app = ChangeNotifierProvider<FavoritesController>(
-    create: (_) => favorites ?? FavoritesController(),
+  app = ChangeNotifierProvider<FavoritesController>.value(
+    value: favorites ?? buildFavorites(),
     child: app,
   );
 

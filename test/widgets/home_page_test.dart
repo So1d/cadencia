@@ -1,7 +1,6 @@
 import 'package:cadencia/core/load_status.dart';
 import 'package:cadencia/core/utils/date_helpers.dart';
 import 'package:cadencia/features/events/data/fake_event_repository.dart';
-import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/events/domain/calendar_event.dart';
 import 'package:cadencia/features/home/presentation/pages/home_page.dart';
 import 'package:cadencia/features/profile/data/fake_profile_repository.dart';
@@ -297,7 +296,7 @@ void main() {
         ),
       ],
     );
-    final favorites = FavoritesController();
+    final favorites = buildFavorites();
 
     await tester.pumpWidget(
       wrapWithScopes(

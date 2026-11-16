@@ -1,5 +1,4 @@
 import 'package:cadencia/features/events/data/fake_event_repository.dart';
-import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/profile/data/fake_profile_repository.dart';
 import 'package:cadencia/features/profile/presentation/profile_controller.dart';
 import 'package:cadencia/features/tasks/data/fake_task_repository.dart';
@@ -39,7 +38,7 @@ void main() {
     final (schedule, profile) = await controllers(
       tasks: [Task(title: 'Comprar pão')],
     );
-    final favorites = FavoritesController();
+    final favorites = buildFavorites();
 
     await tester.pumpWidget(
       wrapWithScopes(
@@ -71,9 +70,8 @@ void main() {
     final (schedule, profile) = await controllers(
       tasks: [Task(title: 'Comprar pão')],
     );
-    final favorites = FavoritesController(
-      initialIds: [schedule.tasks.single.id],
-    );
+    final favorites = buildFavorites(seed: [schedule.tasks.single.id]);
+    await favorites.load();
 
     await tester.pumpWidget(
       wrapWithScopes(
@@ -140,9 +138,8 @@ void main() {
     final (schedule, profile) = await controllers(
       tasks: [Task(title: 'Comprar pão')],
     );
-    final favorites = FavoritesController(
-      initialIds: [schedule.tasks.single.id],
-    );
+    final favorites = buildFavorites(seed: [schedule.tasks.single.id]);
+    await favorites.load();
 
     await tester.pumpWidget(
       wrapWithScopes(

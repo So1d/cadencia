@@ -1,6 +1,7 @@
 import 'package:cadencia/app/app_dependencies.dart';
 import 'package:cadencia/app/cadencia_app.dart';
 import 'package:cadencia/features/events/data/fake_event_repository.dart';
+import 'package:cadencia/features/favorites/data/local_favorites_repository.dart';
 import 'package:cadencia/features/events/domain/calendar_event.dart';
 import 'package:cadencia/features/home/presentation/pages/home_page.dart';
 import 'package:cadencia/features/onboarding/data/onboarding_storage.dart';
@@ -29,6 +30,7 @@ AppDependencies dependencies({
       latency: Duration.zero,
     ),
     profileRepository: FakeProfileRepository(latency: Duration.zero),
+    favoritesRepository: LocalFavoritesRepository(preferences: preferences),
     onboardingStorage: OnboardingStorage(preferences: preferences),
   );
 }

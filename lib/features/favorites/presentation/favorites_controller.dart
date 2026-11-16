@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
-/// As tarefas favoritas do Cadência, em memória.
+import '../domain/repositories/favorites_repository.dart';
+
+/// As tarefas favoritas do Cadência.
 ///
 /// É a **fonte única da verdade** da seleção: nenhuma tela guarda o próprio
 /// booleano, todas perguntam para cá. Duas estruturas trabalham juntas:
@@ -8,21 +12,19 @@ import 'package:flutter/foundation.dart';
 /// * `List<String> _ordered` preserva a ordem de escolha, com o favorito mais
 ///   recente no índice 0 — é a ordem que a seção "Favoritas" mostra;
 /// * `Set<String> _ids` responde [isFavorite] em O(1), consulta feita no build
-///   de cada linha da lista.
+///   de cada linha.
 ///
 /// Guardamos **ids**, não `Task`: a tarefa pertence à agenda
 /// ([ScheduleController]), e duplicar a entidade aqui faria o favorito ficar
-/// desatualizado depois de uma edição. O que é nosso é a pertinência e a ordem.
-///
-/// Estado só em memória, como pede a Etapa 1: reiniciar o app limpa a seleção.
-/// Persistir é assunto de uma etapa posterior.
+/// desatualizado depois de uma edição. O que é nosso é a pertinência e a ordem,
+/// e é exatamente isso que o repositório grava no aparelho.
 class FavoritesController extends ChangeNotifier {
-  FavoritesController({Iterable<String> initialIds = const []})
-      : _ordered = List.unmodifiable(initialIds.toSet().toList()),
-        _ids = {...initialIds};
+  FavoritesController({required this.repository});
 
-  List<String> _ordered;
-  Set<String> _ids;
+  final FavoritesRepository repository;
+
+  List<String> _ordered = const [];
+  Set<String> _ids = const {};
 
   /// Ids favoritados, do mais recente para o mais antigo.
   ///
@@ -31,6 +33,23 @@ class FavoritesController extends ChangeNotifier {
 
   /// Consulta em tempo constante, usada no build de cada linha.
   bool isFavorite(String taskId) => _ids.contains(taskId);
+
+  /// Carrega a relação salva no aparelho.
+  ///
+  /// Falha de leitura não pode derrubar a tela: nesse caso começamos vazio e a
+  /// próxima marcação regrava.
+  Future<void> load() async {
+    try {
+      final ids = await repository.fetchAll();
+      _ordered = List.unmodifiable(ids.toSet().toList());
+      _ids = {...ids};
+      notifyListeners();
+    } catch (_) {
+      _ordered = const [];
+      _ids = const {};
+      notifyListeners();
+    }
+  }
 
   /// Alterna o favorito e devolve `true` se a tarefa passou a ser favorita.
   ///
@@ -41,17 +60,16 @@ class FavoritesController extends ChangeNotifier {
         _ordered.where((id) => id != taskId),
       );
       _ids = {..._ids}..remove(taskId);
-      notifyListeners();
-      return false;
+    } else {
+      _ordered = List.unmodifiable([
+        taskId,
+        ..._ordered.where((id) => id != taskId),
+      ]);
+      _ids = {..._ids, taskId};
     }
-
-    _ordered = List.unmodifiable([
-      taskId,
-      ..._ordered.where((id) => id != taskId),
-    ]);
-    _ids = {..._ids, taskId};
+    _persist();
     notifyListeners();
-    return true;
+    return _ids.contains(taskId);
   }
 
   /// Tira da relação sem alternar — usado quando a tarefa é excluída.
@@ -59,6 +77,11 @@ class FavoritesController extends ChangeNotifier {
     if (!_ids.contains(taskId)) return;
     _ordered = List.unmodifiable(_ordered.where((id) => id != taskId));
     _ids = {..._ids}..remove(taskId);
+    _persist();
     notifyListeners();
+  }
+
+  void _persist() {
+    unawaited(repository.saveAll(_ordered));
   }
 }

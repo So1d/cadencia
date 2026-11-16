@@ -133,8 +133,8 @@ void main() {
     ScheduleController schedule,
     List<String> titles,
   ) {
-    return FavoritesController(
-      initialIds: [
+    return buildFavorites(
+      seed: [
         for (final title in titles)
           schedule.tasks.firstWhere((task) => task.title == title).id,
       ],
@@ -151,10 +151,13 @@ void main() {
       tasks: [Task(title: 'Estrelada'), Task(title: 'Comum')],
     );
 
+    final favorites = favoritesWith(schedule, ['Estrelada']);
+    await favorites.load();
+
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
-        favorites: favoritesWith(schedule, ['Estrelada']),
+        favorites: favorites,
         profile: profile,
         home: const TasksPage(),
       ),
@@ -172,7 +175,7 @@ void main() {
     final (schedule, profile) = await controllers(
       tasks: [Task(title: 'Tomar remédio', priority: TaskPriority.high)],
     );
-    final favorites = FavoritesController();
+    final favorites = buildFavorites();
 
     await tester.pumpWidget(
       wrapWithScopes(
@@ -214,10 +217,13 @@ void main() {
       ],
     );
 
+    final favorites = favoritesWith(schedule, ['Recente', 'Antiga']);
+    await favorites.load();
+
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
-        favorites: favoritesWith(schedule, ['Recente', 'Antiga']),
+        favorites: favorites,
         profile: profile,
         home: const TasksPage(),
       ),

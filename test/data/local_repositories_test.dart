@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:cadencia/features/events/data/local_event_repository.dart';
 import 'package:cadencia/features/events/domain/calendar_event.dart';
+import 'package:cadencia/features/favorites/data/local_favorites_repository.dart';
 import 'package:cadencia/features/profile/data/local_profile_repository.dart';
 import 'package:cadencia/features/profile/domain/entities/profile_focus.dart';
 import 'package:cadencia/features/profile/domain/entities/user_profile.dart';
@@ -117,6 +118,62 @@ void main() {
 
       final repository = LocalProfileRepository(preferences: preferences);
       expect(await repository.load(), UserProfile.empty);
+    });
+  });
+
+  group('LocalFavoritesRepository', () {
+    test('começa vazio', () async {
+      final repository = LocalFavoritesRepository(preferences: preferences);
+      expect(await repository.fetchAll(), isEmpty);
+    });
+
+    test('salva e lê a relação na ordem', () async {
+      final repository = LocalFavoritesRepository(preferences: preferences);
+
+      await repository.saveAll(['t3', 't1', 't2']);
+
+      expect(await repository.fetchAll(), ['t3', 't1', 't2']);
+    });
+
+    test('sobrescreve a relação anterior', () async {
+      final repository = LocalFavoritesRepository(preferences: preferences);
+
+      await repository.saveAll(['t1', 't2']);
+      await repository.saveAll(['t2']);
+
+      expect(await repository.fetchAll(), ['t2']);
+    });
+
+    test('lê uma lista solta (sem envelope)', () async {
+      await preferences.setString(
+        'cadencia_favorites_v1',
+        jsonEncode(['t1', 't2']),
+      );
+
+      final repository = LocalFavoritesRepository(preferences: preferences);
+
+      expect(await repository.fetchAll(), ['t1', 't2']);
+    });
+
+    test('dado corrompido vira relação vazia', () async {
+      await preferences.setString('cadencia_favorites_v1', 'não é json');
+
+      final repository = LocalFavoritesRepository(preferences: preferences);
+
+      expect(await repository.fetchAll(), isEmpty);
+    });
+
+    test('ignora entradas que não são id', () async {
+      await preferences.setString(
+        'cadencia_favorites_v1',
+        jsonEncode({
+          'items': ['t1', 42, '', null, 't2'],
+        }),
+      );
+
+      final repository = LocalFavoritesRepository(preferences: preferences);
+
+      expect(await repository.fetchAll(), ['t1', 't2']);
     });
   });
 }
