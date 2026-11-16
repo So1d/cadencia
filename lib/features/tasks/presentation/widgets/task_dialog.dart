@@ -12,12 +12,14 @@ class TaskDraft {
     this.notes,
     this.dueDate,
     required this.priority,
+    this.favorite = false,
   });
 
   final String title;
   final String? notes;
   final DateTime? dueDate;
   final TaskPriority priority;
+  final bool favorite;
 }
 
 /// Diálogo para criar ou editar uma tarefa.
@@ -36,6 +38,7 @@ class _TaskDialogState extends State<TaskDialog> {
   late final TextEditingController _notes;
   late DateTime? _dueDate;
   late TaskPriority _priority;
+  late bool _favorite;
 
   @override
   void initState() {
@@ -44,6 +47,7 @@ class _TaskDialogState extends State<TaskDialog> {
     _notes = TextEditingController(text: widget.initial?.notes ?? '');
     _dueDate = widget.initial?.dueDate;
     _priority = widget.initial?.priority ?? TaskPriority.medium;
+    _favorite = widget.initial?.favorite ?? false;
   }
 
   @override
@@ -140,6 +144,18 @@ class _TaskDialogState extends State<TaskDialog> {
                 onSelectionChanged: (selection) =>
                     setState(() => _priority = selection.first),
               ),
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: OutlinedButton.icon(
+                  onPressed: () => setState(() => _favorite = !_favorite),
+                  icon: Icon(
+                    _favorite ? Icons.star : Icons.star_border,
+                    size: 18,
+                  ),
+                  label: Text(_favorite ? 'Favorita' : 'Marcar como favorita'),
+                ),
+              ),
             ],
           ),
         ),
@@ -167,6 +183,7 @@ class _TaskDialogState extends State<TaskDialog> {
         notes: _notes.text.trim(),
         dueDate: _dueDate,
         priority: _priority,
+        favorite: _favorite,
       ),
     );
   }

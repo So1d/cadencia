@@ -38,6 +38,7 @@ class FakeTaskRepository implements TaskRepository {
         title: 'Revisar o planejamento da semana',
         priority: TaskPriority.high,
         dueDate: today,
+        favorite: true,
       ),
       Task(
         title: 'Enviar o relatório mensal',

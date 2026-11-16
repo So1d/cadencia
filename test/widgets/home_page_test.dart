@@ -283,4 +283,40 @@ void main() {
     addTearDown(schedule.dispose);
     addTearDown(profile.dispose);
   });
+
+  testWidgets('estrela na Home marca a favorita no estado compartilhado',
+      (tester) async {
+    useTallScreen(tester);
+    final today = DateTime.now();
+    final (schedule, profile) = await controllers(
+      tasks: [
+        Task(
+          title: 'Enviar relatório',
+          dueDate: DateTime(today.year, today.month, today.day),
+        ),
+      ],
+    );
+
+    await tester.pumpWidget(
+      wrapWithScopes(
+        schedule: schedule,
+        profile: profile,
+        home: const HomePage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(schedule.tasks.single.favorite, isFalse);
+
+    await tester.tap(find.byTooltip('Marcar como favorita'));
+    await tester.pumpAndSettle();
+
+    // O mesmo controlador alimenta a aba Tarefas: a estrela da Home reflete lá.
+    expect(schedule.tasks.single.favorite, isTrue);
+    expect(schedule.favoriteTasks.single.title, 'Enviar relatório');
+    expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
+
+    addTearDown(schedule.dispose);
+    addTearDown(profile.dispose);
+  });
 }

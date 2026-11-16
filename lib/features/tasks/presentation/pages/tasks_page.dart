@@ -10,7 +10,7 @@ import '../../domain/task.dart';
 import '../widgets/task_dialog.dart';
 import '../widgets/task_tile.dart';
 
-enum TaskFilter { pending, done, all }
+enum TaskFilter { pending, done, favorite, all }
 
 /// Aba "Tarefas": lista completa com filtros e ações.
 class TasksPage extends StatefulWidget {
@@ -28,6 +28,7 @@ class _TasksPageState extends State<TasksPage> {
     return switch (_filter) {
       TaskFilter.pending => all.where((task) => !task.done).toList(),
       TaskFilter.done => all.where((task) => task.done).toList(),
+      TaskFilter.favorite => all.where((task) => task.favorite).toList(),
       TaskFilter.all => all,
     };
   }
@@ -44,6 +45,7 @@ class _TasksPageState extends State<TasksPage> {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
+      favorite: draft.favorite,
     );
   }
 
@@ -57,6 +59,7 @@ class _TasksPageState extends State<TasksPage> {
           notes: task.notes,
           dueDate: task.dueDate,
           priority: task.priority,
+          favorite: task.favorite,
         ),
       ),
     );
@@ -67,6 +70,7 @@ class _TasksPageState extends State<TasksPage> {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
+      favorite: draft.favorite,
     );
   }
 
@@ -95,6 +99,8 @@ class _TasksPageState extends State<TasksPage> {
   String get _emptyMessage => switch (_filter) {
         TaskFilter.pending => 'Nenhuma tarefa pendente. Bom sinal.',
         TaskFilter.done => 'Nada concluído ainda. Comece pela menor tarefa.',
+        TaskFilter.favorite =>
+          'Nenhuma tarefa favorita ainda. Toque na estrela de uma tarefa para destacá-la.',
         TaskFilter.all => 'Nenhuma tarefa criada ainda.',
       };
 
@@ -105,6 +111,7 @@ class _TasksPageState extends State<TasksPage> {
     final tasks = _filtered(schedule);
     final pending = all.where((task) => !task.done).length;
     final done = all.length - pending;
+    final favorite = all.where((task) => task.favorite).length;
     final horizontal = AppLayout.horizontalPadding(
       MediaQuery.sizeOf(context).width,
     );
@@ -127,31 +134,34 @@ class _TasksPageState extends State<TasksPage> {
                 horizontal,
                 AppSpacing.sm,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SegmentedButton<TaskFilter>(
-                      showSelectedIcon: false,
-                      segments: [
-                        ButtonSegment(
-                          value: TaskFilter.pending,
-                          label: Text('Pendentes ($pending)'),
-                        ),
-                        ButtonSegment(
-                          value: TaskFilter.done,
-                          label: Text('Feitas ($done)'),
-                        ),
-                        const ButtonSegment(
-                          value: TaskFilter.all,
-                          label: Text('Todas'),
-                        ),
-                      ],
-                      selected: {_filter},
-                      onSelectionChanged: (selection) =>
-                          setState(() => _filter = selection.first),
+              // Quatro segmentos com contagem não cabem em 360dp: o seletor
+              // rola na horizontal em vez de estourar a largura.
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SegmentedButton<TaskFilter>(
+                  showSelectedIcon: false,
+                  segments: [
+                    ButtonSegment(
+                      value: TaskFilter.pending,
+                      label: Text('Pendentes ($pending)'),
                     ),
-                  ),
-                ],
+                    ButtonSegment(
+                      value: TaskFilter.done,
+                      label: Text('Feitas ($done)'),
+                    ),
+                    ButtonSegment(
+                      value: TaskFilter.favorite,
+                      label: Text('Favoritas ($favorite)'),
+                    ),
+                    const ButtonSegment(
+                      value: TaskFilter.all,
+                      label: Text('Todas'),
+                    ),
+                  ],
+                  selected: {_filter},
+                  onSelectionChanged: (selection) =>
+                      setState(() => _filter = selection.first),
+                ),
               ),
             ),
           Expanded(
@@ -160,7 +170,9 @@ class _TasksPageState extends State<TasksPage> {
               isEmpty: tasks.isEmpty,
               onRetry: schedule.init,
               errorMessage: 'Não foi possível carregar suas tarefas.',
-              emptyIcon: Icons.checklist_outlined,
+              emptyIcon: _filter == TaskFilter.favorite
+                  ? Icons.star_border
+                  : Icons.checklist_outlined,
               emptyMessage: _emptyMessage,
               emptyAction: _filter == TaskFilter.pending
                   ? TextButton.icon(
@@ -182,6 +194,7 @@ class _TasksPageState extends State<TasksPage> {
                       task: task,
                       onTap: () => _editTask(task),
                       onToggle: (value) => schedule.toggleTask(task, value),
+                      onToggleFavorite: () => schedule.toggleFavorite(task),
                       trailing: PopupMenuButton<String>(
                         tooltip: 'Opções de ${task.title}',
                         onSelected: (value) {

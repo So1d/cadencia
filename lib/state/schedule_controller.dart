@@ -179,6 +179,10 @@ class ScheduleController extends ChangeNotifier {
   List<Task> get pendingTasks =>
       tasksSorted.where((task) => !task.done).toList(growable: false);
 
+  /// Apenas as tarefas marcadas como favoritas, na mesma ordem de leitura.
+  List<Task> get favoriteTasks =>
+      tasksSorted.where((task) => task.favorite).toList(growable: false);
+
   List<Task> tasksOfDay(DateTime day) => tasksSorted
       .where((task) => task.dueDate != null && mesmoDia(task.dueDate!, day))
       .toList(growable: false);
@@ -203,15 +207,26 @@ class ScheduleController extends ChangeNotifier {
     String? notes,
     DateTime? dueDate,
     required TaskPriority priority,
+    bool favorite = false,
   }) {
     _taskList.add(
       Task(
         title: title,
         notes: _cleanNotes(notes),
         dueDate: dueDate == null ? null : dateOnly(dueDate),
+        favorite: favorite,
         priority: priority,
       ),
     );
+    _persist();
+    notifyListeners();
+  }
+
+  /// Inverte o favorito da tarefa e persiste.
+  void toggleFavorite(Task task) {
+    final index = _taskList.indexOf(task);
+    if (index < 0) return;
+    _taskList[index] = task.copyWith(favorite: !task.favorite);
     _persist();
     notifyListeners();
   }
@@ -230,6 +245,7 @@ class ScheduleController extends ChangeNotifier {
     String? notes,
     DateTime? dueDate,
     required TaskPriority priority,
+    bool? favorite,
   }) {
     final index = _taskList.indexOf(task);
     if (index < 0) return;
@@ -239,6 +255,7 @@ class ScheduleController extends ChangeNotifier {
       clearNotes: _cleanNotes(notes) == null,
       dueDate: dueDate == null ? null : dateOnly(dueDate),
       clearDueDate: dueDate == null,
+      favorite: favorite,
       priority: priority,
     );
     _persist();

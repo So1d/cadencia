@@ -168,6 +168,7 @@ class HomePage extends StatelessWidget {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
+      favorite: draft.favorite,
     );
   }
 
@@ -181,6 +182,7 @@ class HomePage extends StatelessWidget {
           notes: task.notes,
           dueDate: task.dueDate,
           priority: task.priority,
+          favorite: task.favorite,
         ),
       ),
     );
@@ -191,6 +193,7 @@ class HomePage extends StatelessWidget {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
+      favorite: draft.favorite,
     );
   }
 }
@@ -301,6 +304,7 @@ class _TasksSection extends StatelessWidget {
                   task: task,
                   onTap: () => onEdit(task),
                   onToggle: (value) => schedule.toggleTask(task, value),
+                  onToggleFavorite: () => schedule.toggleFavorite(task),
                 ),
             ],
           ),

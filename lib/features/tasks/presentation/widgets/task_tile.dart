@@ -6,18 +6,22 @@ import '../../../../core/utils/date_helpers.dart';
 import '../../domain/task.dart';
 import 'task_priority_view.dart';
 
-/// Linha de tarefa com marcação, prioridade e data.
+/// Linha de tarefa com marcação, favorito, prioridade e data.
 class TaskTile extends StatelessWidget {
   const TaskTile({
     super.key,
     required this.task,
     required this.onToggle,
+    this.onToggleFavorite,
     this.onTap,
     this.trailing,
   });
 
   final Task task;
   final ValueChanged<bool> onToggle;
+
+  /// Ação rápida da estrela. Sem callback, a estrela não aparece.
+  final VoidCallback? onToggleFavorite;
   final VoidCallback? onTap;
   final Widget? trailing;
 
@@ -62,6 +66,28 @@ class TaskTile extends StatelessWidget {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (onToggleFavorite != null) ...[
+              IconButton(
+                tooltip: task.favorite
+                    ? 'Remover dos favoritos'
+                    : 'Marcar como favorita',
+                onPressed: onToggleFavorite,
+                iconSize: 18,
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 36,
+                  minHeight: 36,
+                ),
+                icon: Icon(
+                  task.favorite ? Icons.star : Icons.star_border,
+                  color: task.favorite
+                      ? AppColors.warning
+                      : AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(width: 4),
+            ],
             Tooltip(
               message: 'Prioridade ${task.priority.label}',
               child: Icon(
