@@ -1,4 +1,5 @@
 import 'package:cadencia/features/events/data/fake_event_repository.dart';
+import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/profile/data/fake_profile_repository.dart';
 import 'package:cadencia/features/profile/presentation/profile_controller.dart';
 import 'package:cadencia/features/tasks/data/fake_task_repository.dart';
@@ -126,6 +127,20 @@ void main() {
     addTearDown(profile.dispose);
   });
 
+  /// Monta a relação de favoritos com as tarefas dos títulos informados, na
+  /// ordem dada (o primeiro é o favorito mais recente).
+  FavoritesController favoritesWith(
+    ScheduleController schedule,
+    List<String> titles,
+  ) {
+    return FavoritesController(
+      initialIds: [
+        for (final title in titles)
+          schedule.tasks.firstWhere((task) => task.title == title).id,
+      ],
+    );
+  }
+
   testWidgets('os quatro filtros não estouram em 360dp', (tester) async {
     tester.view.physicalSize = const Size(360, 800);
     tester.view.devicePixelRatio = 1;
@@ -133,12 +148,13 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
 
     final (schedule, profile) = await controllers(
-      tasks: [Task(title: 'Estrelada', favorite: true), Task(title: 'Comum')],
+      tasks: [Task(title: 'Estrelada'), Task(title: 'Comum')],
     );
 
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
+        favorites: favoritesWith(schedule, ['Estrelada']),
         profile: profile,
         home: const TasksPage(),
       ),
@@ -156,40 +172,44 @@ void main() {
     final (schedule, profile) = await controllers(
       tasks: [Task(title: 'Tomar remédio', priority: TaskPriority.high)],
     );
+    final favorites = FavoritesController();
 
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
+        favorites: favorites,
         profile: profile,
         home: const TasksPage(),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(schedule.tasks.single.favorite, isFalse);
-    expect(find.byTooltip('Marcar como favorita'), findsOneWidget);
+    expect(favorites.favoriteIds, isEmpty);
+    expect(find.byTooltip('Marcar Tomar remédio como favorita'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Marcar como favorita'));
+    await tester.tap(find.byTooltip('Marcar Tomar remédio como favorita'));
     await tester.pumpAndSettle();
 
-    expect(schedule.tasks.single.favorite, isTrue);
-    expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
+    expect(favorites.isFavorite(schedule.tasks.single.id), isTrue);
+    expect(find.byTooltip('Remover Tomar remédio dos favoritos'), findsOneWidget);
     expect(find.text('Favoritas (1)'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Remover dos favoritos'));
+    await tester.tap(find.byTooltip('Remover Tomar remédio dos favoritos'));
     await tester.pumpAndSettle();
 
-    expect(schedule.tasks.single.favorite, isFalse);
-    expect(find.byTooltip('Marcar como favorita'), findsOneWidget);
+    expect(favorites.favoriteIds, isEmpty);
+    expect(find.byTooltip('Marcar Tomar remédio como favorita'), findsOneWidget);
 
     addTearDown(schedule.dispose);
     addTearDown(profile.dispose);
   });
 
-  testWidgets('filtro Favoritas mostra só as estreladas', (tester) async {
+  testWidgets('filtro Favoritas mostra só as estreladas, mais recente antes',
+      (tester) async {
     final (schedule, profile) = await controllers(
       tasks: [
-        Task(title: 'Estrelada', favorite: true),
+        Task(title: 'Antiga'),
+        Task(title: 'Recente'),
         Task(title: 'Comum'),
       ],
     );
@@ -197,16 +217,24 @@ void main() {
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
+        favorites: favoritesWith(schedule, ['Recente', 'Antiga']),
         profile: profile,
         home: const TasksPage(),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tapSegment(tester, 'Favoritas (1)');
+    await tapSegment(tester, 'Favoritas (2)');
 
-    expect(find.text('Estrelada'), findsOneWidget);
+    expect(find.text('Recente'), findsOneWidget);
+    expect(find.text('Antiga'), findsOneWidget);
     expect(find.text('Comum'), findsNothing);
+
+    // A ordem é a do favorito, não a da agenda: a mais recente vem primeiro.
+    expect(
+      tester.getTopLeft(find.text('Recente')).dy,
+      lessThan(tester.getTopLeft(find.text('Antiga')).dy),
+    );
 
     addTearDown(schedule.dispose);
     addTearDown(profile.dispose);
@@ -236,6 +264,31 @@ void main() {
       ),
       findsOneWidget,
     );
+
+    addTearDown(schedule.dispose);
+    addTearDown(profile.dispose);
+  });
+
+  testWidgets('tocar na tarefa abre o detalhe', (tester) async {
+    final (schedule, profile) = await controllers(
+      tasks: [Task(title: 'Comprar pão')],
+    );
+
+    await tester.pumpWidget(
+      wrapWithScopes(
+        schedule: schedule,
+        profile: profile,
+        home: const TasksPage(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Comprar pão'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tarefa'), findsOneWidget);
+    expect(find.text('Comprar pão'), findsOneWidget);
+    expect(find.text('Pendente'), findsOneWidget);
 
     addTearDown(schedule.dispose);
     addTearDown(profile.dispose);

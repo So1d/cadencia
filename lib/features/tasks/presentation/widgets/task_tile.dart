@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../core/utils/date_helpers.dart';
+import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../domain/task.dart';
 import 'task_priority_view.dart';
 
@@ -12,6 +13,7 @@ class TaskTile extends StatelessWidget {
     super.key,
     required this.task,
     required this.onToggle,
+    this.isFavorite = false,
     this.onToggleFavorite,
     this.onTap,
     this.trailing,
@@ -19,6 +21,9 @@ class TaskTile extends StatelessWidget {
 
   final Task task;
   final ValueChanged<bool> onToggle;
+
+  /// Estado do favorito vem de fora: o tile não guarda booleano próprio.
+  final bool isFavorite;
 
   /// Ação rápida da estrela. Sem callback, a estrela não aparece.
   final VoidCallback? onToggleFavorite;
@@ -67,24 +72,11 @@ class TaskTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (onToggleFavorite != null) ...[
-              IconButton(
-                tooltip: task.favorite
-                    ? 'Remover dos favoritos'
-                    : 'Marcar como favorita',
-                onPressed: onToggleFavorite,
-                iconSize: 18,
-                visualDensity: VisualDensity.compact,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(
-                  minWidth: 36,
-                  minHeight: 36,
-                ),
-                icon: Icon(
-                  task.favorite ? Icons.star : Icons.star_border,
-                  color: task.favorite
-                      ? AppColors.warning
-                      : AppColors.textMuted,
-                ),
+              FavoriteButton(
+                taskTitle: task.title,
+                isFavorite: isFavorite,
+                onPressed: onToggleFavorite!,
+                compact: true,
               ),
               const SizedBox(width: 4),
             ],

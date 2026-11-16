@@ -30,27 +30,35 @@ class FakeTaskRepository implements TaskRepository {
   final List<Task> _tasks;
 
   /// Semente de exemplo para o modo demonstração.
+  ///
+  /// Ids fixos: o modo demo também semeia favoritos, e para isso precisa
+  /// reconhecer a tarefa sem depender do id aleatório.
+  static const String demoFavoriteId = 'demo-planejamento';
+
   static List<Task> get demo {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     return [
       Task(
+        id: demoFavoriteId,
         title: 'Revisar o planejamento da semana',
         priority: TaskPriority.high,
         dueDate: today,
-        favorite: true,
       ),
       Task(
+        id: 'demo-relatorio',
         title: 'Enviar o relatório mensal',
         dueDate: today,
         priority: TaskPriority.medium,
       ),
-      Task(title: 'Estudar Flutter por 30 minutos'),
+      Task(id: 'demo-flutter', title: 'Estudar Flutter por 30 minutos'),
       Task(
+        id: 'demo-presente',
         title: 'Comprar presente da Ana',
         dueDate: today.add(const Duration(days: 3)),
       ),
       Task(
+        id: 'demo-carro',
         title: 'Agendar manutenção do carro',
         done: true,
         priority: TaskPriority.low,

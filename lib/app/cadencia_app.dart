@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../features/favorites/presentation/favorites_controller.dart';
 import '../features/profile/presentation/profile_controller.dart';
 import '../features/profile/presentation/profile_scope.dart';
 import '../features/startup/presentation/splash_page.dart';
@@ -55,19 +57,28 @@ class _CadenciaAppState extends State<CadenciaApp> {
   @override
   Widget build(BuildContext context) {
     // Acima do MaterialApp: as rotas empilhadas também enxergam os escopos.
-    return ScheduleScope(
-      controller: _scheduleController,
-      child: ProfileScope(
-        controller: _profileController,
-        child: MaterialApp(
-          title: 'Cadência',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.dark,
-          locale: const Locale('pt', 'BR'),
-          supportedLocales: const [Locale('pt', 'BR')],
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          home: SplashPage(
-            onboardingStorage: _dependencies.onboardingStorage,
+    //
+    // O FavoritesController entra pelo `provider`, como pede a Etapa 1: o
+    // `ChangeNotifierProvider` cria a instância sob demanda e a descarta junto
+    // com a subárvore, e as telas leem com `context.watch`/`context.read`.
+    return ChangeNotifierProvider<FavoritesController>(
+      create: (_) => FavoritesController(
+        initialIds: _dependencies.initialFavorites,
+      ),
+      child: ScheduleScope(
+        controller: _scheduleController,
+        child: ProfileScope(
+          controller: _profileController,
+          child: MaterialApp(
+            title: 'Cadência',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.dark,
+            locale: const Locale('pt', 'BR'),
+            supportedLocales: const [Locale('pt', 'BR')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            home: SplashPage(
+              onboardingStorage: _dependencies.onboardingStorage,
+            ),
           ),
         ),
       ),

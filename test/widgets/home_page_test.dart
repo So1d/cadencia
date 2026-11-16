@@ -1,6 +1,7 @@
 import 'package:cadencia/core/load_status.dart';
 import 'package:cadencia/core/utils/date_helpers.dart';
 import 'package:cadencia/features/events/data/fake_event_repository.dart';
+import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/events/domain/calendar_event.dart';
 import 'package:cadencia/features/home/presentation/pages/home_page.dart';
 import 'package:cadencia/features/profile/data/fake_profile_repository.dart';
@@ -296,25 +297,29 @@ void main() {
         ),
       ],
     );
+    final favorites = FavoritesController();
 
     await tester.pumpWidget(
       wrapWithScopes(
         schedule: schedule,
+        favorites: favorites,
         profile: profile,
         home: const HomePage(),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(schedule.tasks.single.favorite, isFalse);
+    expect(favorites.favoriteIds, isEmpty);
 
-    await tester.tap(find.byTooltip('Marcar como favorita'));
+    await tester.tap(find.byTooltip('Marcar Enviar relatório como favorita'));
     await tester.pumpAndSettle();
 
     // O mesmo controlador alimenta a aba Tarefas: a estrela da Home reflete lá.
-    expect(schedule.tasks.single.favorite, isTrue);
-    expect(schedule.favoriteTasks.single.title, 'Enviar relatório');
-    expect(find.byTooltip('Remover dos favoritos'), findsOneWidget);
+    expect(favorites.isFavorite(schedule.tasks.single.id), isTrue);
+    expect(
+      find.byTooltip('Remover Enviar relatório dos favoritos'),
+      findsOneWidget,
+    );
 
     addTearDown(schedule.dispose);
     addTearDown(profile.dispose);

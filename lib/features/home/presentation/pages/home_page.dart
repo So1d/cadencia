@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/routes/fade_route.dart';
 import '../../../../app/theme/app_layout.dart';
@@ -10,10 +11,12 @@ import '../../../../features/events/domain/calendar_event.dart';
 import '../../../../features/events/presentation/pages/event_details_page.dart';
 import '../../../../features/events/presentation/widgets/event_dialog.dart';
 import '../../../../features/events/presentation/widgets/event_tile.dart';
+import '../../../../features/favorites/presentation/favorites_controller.dart';
 import '../../../../features/profile/domain/entities/profile_focus.dart';
 import '../../../../features/profile/presentation/pages/profile_form_page.dart';
 import '../../../../features/profile/presentation/profile_scope.dart';
 import '../../../../features/tasks/domain/task.dart';
+import '../../../../features/tasks/presentation/pages/task_details_page.dart';
 import '../../../../features/tasks/presentation/widgets/task_dialog.dart';
 import '../../../../features/tasks/presentation/widgets/task_tile.dart';
 import '../../../../state/schedule_controller.dart';
@@ -29,6 +32,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final schedule = ScheduleScope.of(context);
+    final favorites = context.watch<FavoritesController>();
     final profile = ProfileScope.of(context).profile;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -49,9 +53,12 @@ class HomePage extends StatelessWidget {
 
     final tasksSection = _TasksSection(
       schedule: schedule,
+      favorites: favorites,
       tasks: tasks,
       onAdd: () => _addTask(context),
-      onEdit: (task) => _editTask(context, task),
+      onOpen: (task) => Navigator.of(context).push(
+        TaskDetailsPage.route(task),
+      ),
     );
 
     return Scaffold(
@@ -168,32 +175,6 @@ class HomePage extends StatelessWidget {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
-      favorite: draft.favorite,
-    );
-  }
-
-  Future<void> _editTask(BuildContext context, Task task) async {
-    final schedule = ScheduleScope.read(context);
-    final draft = await showDialog<TaskDraft>(
-      context: context,
-      builder: (_) => TaskDialog(
-        initial: TaskDraft(
-          title: task.title,
-          notes: task.notes,
-          dueDate: task.dueDate,
-          priority: task.priority,
-          favorite: task.favorite,
-        ),
-      ),
-    );
-    if (draft == null) return;
-    schedule.updateTask(
-      task,
-      title: draft.title,
-      notes: draft.notes,
-      dueDate: draft.dueDate,
-      priority: draft.priority,
-      favorite: draft.favorite,
     );
   }
 }
@@ -262,15 +243,17 @@ class _AgendaSection extends StatelessWidget {
 class _TasksSection extends StatelessWidget {
   const _TasksSection({
     required this.schedule,
+    required this.favorites,
     required this.tasks,
     required this.onAdd,
-    required this.onEdit,
+    required this.onOpen,
   });
 
   final ScheduleController schedule;
+  final FavoritesController favorites;
   final List<Task> tasks;
   final VoidCallback onAdd;
-  final ValueChanged<Task> onEdit;
+  final ValueChanged<Task> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -302,9 +285,10 @@ class _TasksSection extends StatelessWidget {
               for (final task in tasks)
                 TaskTile(
                   task: task,
-                  onTap: () => onEdit(task),
+                  isFavorite: favorites.isFavorite(task.id),
+                  onTap: () => onOpen(task),
                   onToggle: (value) => schedule.toggleTask(task, value),
-                  onToggleFavorite: () => schedule.toggleFavorite(task),
+                  onToggleFavorite: () => favorites.toggle(task.id),
                 ),
             ],
           ),

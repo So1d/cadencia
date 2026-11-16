@@ -20,12 +20,17 @@ class AppDependencies {
     required this.eventRepository,
     required this.profileRepository,
     required this.onboardingStorage,
+    this.initialFavorites = const [],
   });
 
   final TaskRepository taskRepository;
   final EventRepository eventRepository;
   final ProfileRepository profileRepository;
   final OnboardingStorage onboardingStorage;
+
+  /// Favoritos já marcados na abertura — só o modo demo usa (o estado dos
+  /// favoritos é em memória, então a semente vem por aqui).
+  final List<String> initialFavorites;
 
   /// App de verdade: tudo persistido no aparelho.
   factory AppDependencies.production() {
@@ -59,6 +64,7 @@ class AppDependencies {
       ),
       profileRepository: LocalProfileRepository(),
       onboardingStorage: OnboardingStorage(),
+      initialFavorites: const [FakeTaskRepository.demoFavoriteId],
     );
   }
 }

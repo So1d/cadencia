@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../app/theme/app_layout.dart';
 import '../../../../app/theme/app_spacing.dart';
@@ -6,9 +7,11 @@ import '../../../../core/load_status.dart';
 import '../../../../core/widgets/status_view.dart';
 import '../../../../state/schedule_controller.dart';
 import '../../../../state/schedule_scope.dart';
+import '../../../favorites/presentation/favorites_controller.dart';
 import '../../domain/task.dart';
 import '../widgets/task_dialog.dart';
 import '../widgets/task_tile.dart';
+import 'task_details_page.dart';
 
 enum TaskFilter { pending, done, favorite, all }
 
@@ -23,12 +26,29 @@ class TasksPage extends StatefulWidget {
 class _TasksPageState extends State<TasksPage> {
   TaskFilter _filter = TaskFilter.pending;
 
-  List<Task> _filtered(ScheduleController schedule) {
+  /// As favoritas na ordem em que foram marcadas: a relação guarda ids, e a
+  /// tarefa em si vive na agenda. Id de tarefa excluída simplesmente não rende
+  /// linha (e `favorites.remove` já tira na exclusão).
+  List<Task> _favoriteTasks(
+    ScheduleController schedule,
+    FavoritesController favorites,
+  ) {
+    final byId = {for (final task in schedule.tasks) task.id: task};
+    return [
+      for (final id in favorites.favoriteIds)
+        if (byId[id] != null) byId[id]!,
+    ];
+  }
+
+  List<Task> _filtered(
+    ScheduleController schedule,
+    FavoritesController favorites,
+  ) {
     final all = schedule.tasksSorted;
     return switch (_filter) {
       TaskFilter.pending => all.where((task) => !task.done).toList(),
       TaskFilter.done => all.where((task) => task.done).toList(),
-      TaskFilter.favorite => all.where((task) => task.favorite).toList(),
+      TaskFilter.favorite => _favoriteTasks(schedule, favorites),
       TaskFilter.all => all,
     };
   }
@@ -45,7 +65,6 @@ class _TasksPageState extends State<TasksPage> {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
-      favorite: draft.favorite,
     );
   }
 
@@ -59,7 +78,6 @@ class _TasksPageState extends State<TasksPage> {
           notes: task.notes,
           dueDate: task.dueDate,
           priority: task.priority,
-          favorite: task.favorite,
         ),
       ),
     );
@@ -70,12 +88,12 @@ class _TasksPageState extends State<TasksPage> {
       notes: draft.notes,
       dueDate: draft.dueDate,
       priority: draft.priority,
-      favorite: draft.favorite,
     );
   }
 
   Future<void> _deleteTask(Task task) async {
     final schedule = ScheduleScope.read(context);
+    final favorites = context.read<FavoritesController>();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -93,7 +111,10 @@ class _TasksPageState extends State<TasksPage> {
         ],
       ),
     );
-    if (confirmed == true) schedule.removeTask(task);
+    if (confirmed == true) {
+      favorites.remove(task.id);
+      schedule.removeTask(task);
+    }
   }
 
   String get _emptyMessage => switch (_filter) {
@@ -107,11 +128,14 @@ class _TasksPageState extends State<TasksPage> {
   @override
   Widget build(BuildContext context) {
     final schedule = ScheduleScope.of(context);
+    // `watch` assina o controlador: marcar uma estrela em qualquer lugar do app
+    // reconstrói esta tela. Nada de guardar booleano próprio aqui.
+    final favorites = context.watch<FavoritesController>();
     final all = schedule.tasksSorted;
-    final tasks = _filtered(schedule);
+    final tasks = _filtered(schedule, favorites);
     final pending = all.where((task) => !task.done).length;
     final done = all.length - pending;
-    final favorite = all.where((task) => task.favorite).length;
+    final favorite = _favoriteTasks(schedule, favorites).length;
     final horizontal = AppLayout.horizontalPadding(
       MediaQuery.sizeOf(context).width,
     );
@@ -192,9 +216,12 @@ class _TasksPageState extends State<TasksPage> {
                   for (final task in tasks)
                     TaskTile(
                       task: task,
-                      onTap: () => _editTask(task),
+                      isFavorite: favorites.isFavorite(task.id),
+                      onTap: () => Navigator.of(context).push(
+                        TaskDetailsPage.route(task),
+                      ),
                       onToggle: (value) => schedule.toggleTask(task, value),
-                      onToggleFavorite: () => schedule.toggleFavorite(task),
+                      onToggleFavorite: () => favorites.toggle(task.id),
                       trailing: PopupMenuButton<String>(
                         tooltip: 'Opções de ${task.title}',
                         onSelected: (value) {

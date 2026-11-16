@@ -12,7 +12,6 @@ class Task {
     this.notes,
     this.dueDate,
     this.done = false,
-    this.favorite = false,
     this.priority = TaskPriority.medium,
   }) : id = id ?? newId();
 
@@ -23,10 +22,6 @@ class Task {
   /// Data de vencimento (apenas a parte do dia é usada).
   final DateTime? dueDate;
   final bool done;
-
-  /// Atalho cognitivo do usuário: a tarefa aparece no filtro "Favoritas" e
-  /// ganha a estrela na linha, independentemente de prazo e prioridade.
-  final bool favorite;
   final TaskPriority priority;
 
   Task copyWith({
@@ -36,7 +31,6 @@ class Task {
     DateTime? dueDate,
     bool clearDueDate = false,
     bool? done,
-    bool? favorite,
     TaskPriority? priority,
   }) {
     return Task(
@@ -45,7 +39,6 @@ class Task {
       notes: clearNotes ? null : (notes ?? this.notes),
       dueDate: clearDueDate ? null : (dueDate ?? this.dueDate),
       done: done ?? this.done,
-      favorite: favorite ?? this.favorite,
       priority: priority ?? this.priority,
     );
   }
@@ -56,7 +49,6 @@ class Task {
         'notes': notes,
         'due_date': dueDate?.toIso8601String(),
         'done': done,
-        'favorite': favorite,
         'priority': priority.value,
       };
 
@@ -68,8 +60,6 @@ class Task {
       notes: json['notes'] as String?,
       dueDate: dueDate is String ? DateTime.tryParse(dueDate) : null,
       done: json['done'] == true,
-      // Registros antigos não têm a chave: o padrão é não favorita.
-      favorite: json['favorite'] == true,
       priority: TaskPriority.fromValue(
         json['priority'] is int ? json['priority']! as int : 1,
       ),

@@ -1,16 +1,20 @@
 import 'package:cadencia/app/theme/app_theme.dart';
+import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_scope.dart';
 import 'package:cadencia/state/schedule_controller.dart';
 import 'package:cadencia/state/schedule_scope.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 /// Monta a árvore mínima usada pelos testes de widget: escopos + MaterialApp.
 ///
-/// O `schedule` é opcional para telas que só dependem do perfil.
+/// O `schedule` é opcional para telas que só dependem do perfil. O
+/// `favorites` é criado vazio quando o teste não precisa inspecioná-lo.
 Widget wrapWithScopes({
   ScheduleController? schedule,
+  FavoritesController? favorites,
   required ProfileController profile,
   required Widget home,
 }) {
@@ -25,6 +29,11 @@ Widget wrapWithScopes({
   if (schedule != null) {
     app = ScheduleScope(controller: schedule, child: app);
   }
+
+  app = ChangeNotifierProvider<FavoritesController>(
+    create: (_) => favorites ?? FavoritesController(),
+    child: app,
+  );
 
   return ProfileScope(controller: profile, child: app);
 }

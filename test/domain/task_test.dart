@@ -24,7 +24,6 @@ void main() {
         notes: 'Capítulo 4',
         dueDate: DateTime(2026, 11, 10),
         done: true,
-        favorite: true,
         priority: TaskPriority.high,
       );
 
@@ -35,36 +34,7 @@ void main() {
       expect(copy.notes, 'Capítulo 4');
       expect(copy.dueDate, DateTime(2026, 11, 10));
       expect(copy.done, isTrue);
-      expect(copy.favorite, isTrue);
       expect(copy.priority, TaskPriority.high);
-    });
-
-    test('tarefa nova nasce não favorita', () {
-      expect(Task(title: 'Nova').favorite, isFalse);
-      expect(Task(title: 'Nova').toJson()['favorite'], isFalse);
-    });
-
-    test('fromJson sem a chave favorite lê como não favorita', () {
-      final antiga = Task.fromJson({
-        'id': 't9',
-        'title': 'Salva antes do recurso',
-        'done': false,
-        'priority': 1,
-      });
-
-      expect(antiga.favorite, isFalse);
-    });
-
-    test('copyWith alterna o favorito sem perder o resto', () {
-      final task = Task(title: 'X', priority: TaskPriority.low);
-
-      final favorita = task.copyWith(favorite: true);
-      expect(favorita.favorite, isTrue);
-      expect(favorita.title, 'X');
-      expect(favorita.id, task.id);
-
-      final semFavorito = favorita.copyWith(favorite: false);
-      expect(semFavorito.favorite, isFalse);
     });
 
     test('fromJson tolera campos ausentes e inválidos', () {
@@ -79,7 +49,6 @@ void main() {
       expect(task.priority, TaskPriority.medium);
       expect(task.dueDate, isNull);
       expect(task.done, isFalse);
-      expect(task.favorite, isFalse);
     });
 
     test('copyWith limpa observações e data quando pedido', () {
