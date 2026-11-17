@@ -124,6 +124,10 @@ success), então não há um segundo estado de carga para desencontrar.
   os quatro estados ocupam `SliverFillRemaining`.
 - Estado vazio com ação: "Limpar filtros" quando há recorte, "Criar tarefa"
   quando o catálogo está vazio de verdade.
+- Estrela com feedback: `toggleFavoriteWithFeedback` é o único lugar que
+  alterna favorito e mostra o aviso. O slide pedia isso e aqui faltava: a
+  gravação falhava em silêncio, a estrela ficava acesa e sumia no próximo boot.
+  Agora o controlador desfaz a marcação e relança, e a tela avisa.
 
 ## 6. Home e casca
 
@@ -151,7 +155,7 @@ success), então não há um segundo estado de carga para desencontrar.
 
 ## 8. Testes
 
-`flutter test` passa com 138 testes e `flutter analyze` sem avisos.
+`flutter test` passa com 142 testes e `flutter analyze` sem avisos.
 
 - `test/domain/task_query_test.dart`: igualdade com `Set`, `copyWith`,
   `activeCount`, `cleared` preservando a ordenação.
@@ -164,6 +168,10 @@ success), então não há um segundo estado de carga para desencontrar.
   rótulos e overflow em 320x640 com fonte 200%.
 - `test/widgets/task_query_flow_test.dart`: integração pela casca (atalho da
   Home, "Ver todas", busca, persistência entre abas) com o app inteiro.
+- `test/state/favorites_controller_test.dart`: fila de gravação, desfazer na
+  falha e fila sobrevivendo a uma falha.
+- `test/widgets/favorites_flow_test.dart`: aviso de falha ao gravar o favorito,
+  com a estrela de volta.
 
 ## 9. Arquivos
 
@@ -174,6 +182,7 @@ success), então não há um segundo estado de carga para desencontrar.
 - `lib/features/tasks/presentation/widgets/task_search_field.dart`
 - `lib/features/tasks/presentation/widgets/task_filter_chips.dart`
 - `lib/features/tasks/presentation/widgets/task_results_bar.dart`
+- `lib/features/favorites/presentation/toggle_favorite.dart`
 - `lib/features/tasks/presentation/pages/tasks_page.dart`
 - `lib/app/shell/app_shell.dart`
 - `lib/features/home/presentation/pages/home_page.dart`

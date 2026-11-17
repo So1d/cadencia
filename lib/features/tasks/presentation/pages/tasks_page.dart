@@ -10,6 +10,7 @@ import '../../../../core/widgets/loading_view.dart';
 import '../../../../state/schedule_controller.dart';
 import '../../../../state/schedule_scope.dart';
 import '../../../favorites/presentation/favorites_controller.dart';
+import '../../../favorites/presentation/toggle_favorite.dart';
 import '../../domain/task.dart';
 import '../../domain/task_query.dart';
 import '../../domain/task_query_engine.dart';
@@ -233,7 +234,8 @@ class TasksPage extends StatelessWidget {
                     TaskDetailsPage.route(task),
                   ),
                   onToggle: (value) => schedule.toggleTask(task, value),
-                  onToggleFavorite: () => favorites.toggle(task.id),
+                  onToggleFavorite: () =>
+                      toggleFavoriteWithFeedback(context, task),
                   trailing: PopupMenuButton<String>(
                     tooltip: 'Opções de ${task.title}',
                     onSelected: (value) {

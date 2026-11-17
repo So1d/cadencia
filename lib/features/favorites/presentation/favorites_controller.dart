@@ -26,6 +26,11 @@ class FavoritesController extends ChangeNotifier {
   List<String> _ordered = const [];
   Set<String> _ids = const {};
 
+  /// Última gravação agendada. Serve de fila: sem ela, dois toques rápidos
+  /// chegariam ao disco fora de ordem e a relação salva poderia não ser a que
+  /// a tela mostra.
+  Future<void> _fila = Future<void>.value();
+
   /// Ids favoritados, do mais recente para o mais antigo.
   ///
   /// Somente leitura: quem quiser mudar passa por [toggle] ou [remove].
@@ -53,12 +58,16 @@ class FavoritesController extends ChangeNotifier {
 
   /// Alterna o favorito e devolve `true` se a tarefa passou a ser favorita.
   ///
-  /// Novas favoritas entram no índice 0; as demais mantêm a ordem relativa.
-  bool toggle(String taskId) {
+  /// A mudança aparece na hora e a gravação vem em seguida. Se ela falhar, o
+  /// estado volta ao anterior e o erro é relançado: uma estrela acesa que não
+  /// sobrevive ao próximo boot é pior do que um aviso na hora. Quem chama
+  /// decide o que mostrar — ver `toggleFavoriteWithFeedback`.
+  Future<bool> toggle(String taskId) async {
+    final anteriorOrdered = _ordered;
+    final anteriorIds = _ids;
+
     if (_ids.contains(taskId)) {
-      _ordered = List.unmodifiable(
-        _ordered.where((id) => id != taskId),
-      );
+      _ordered = List.unmodifiable(_ordered.where((id) => id != taskId));
       _ids = {..._ids}..remove(taskId);
     } else {
       _ordered = List.unmodifiable([
@@ -67,21 +76,44 @@ class FavoritesController extends ChangeNotifier {
       ]);
       _ids = {..._ids, taskId};
     }
-    _persist();
+    final aplicado = _ordered;
     notifyListeners();
+
+    try {
+      await _gravar(aplicado);
+    } catch (_) {
+      // Só desfaz se ninguém mexeu depois: com toques em sequência o estado
+      // atual já é outro, e voltar ao anterior apagaria a escolha mais nova.
+      if (identical(_ordered, aplicado)) {
+        _ordered = anteriorOrdered;
+        _ids = anteriorIds;
+        notifyListeners();
+      }
+      rethrow;
+    }
+
     return _ids.contains(taskId);
   }
 
   /// Tira da relação sem alternar — usado quando a tarefa é excluída.
+  ///
+  /// Aqui não há retorno para a tela: a exclusão já removeu a tarefa, e uma
+  /// gravação que falha só faz o id voltar na próxima abertura, sem afetar a
+  /// lista visível.
   void remove(String taskId) {
     if (!_ids.contains(taskId)) return;
     _ordered = List.unmodifiable(_ordered.where((id) => id != taskId));
     _ids = {..._ids}..remove(taskId);
-    _persist();
+    unawaited(_gravar(_ordered).catchError((Object _) {}));
     notifyListeners();
   }
 
-  void _persist() {
-    unawaited(repository.saveAll(_ordered));
+  Future<void> _gravar(List<String> snapshot) {
+    final gravacao = _fila.then((_) => repository.saveAll(snapshot));
+    // A fila não pode morrer por causa de uma falha: quem espera recebe o erro
+    // pela future devolvida, mas o próximo agendamento depende da versão
+    // tratada.
+    _fila = gravacao.then((_) {}, onError: (Object _) {});
+    return gravacao;
   }
 }

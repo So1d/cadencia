@@ -34,7 +34,10 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
   }
 
-  Future<void> startApp(WidgetTester tester) async {
+  Future<void> startApp(
+    WidgetTester tester, {
+    FakeFavoritesRepository? favorites,
+  }) async {
     final dependencies = AppDependencies(
       taskRepository: FakeTaskRepository(
         seed: FakeTaskRepository.demo,
@@ -43,10 +46,11 @@ void main() {
       eventRepository: FakeEventRepository(latency: Duration.zero),
       profileRepository: FakeProfileRepository(latency: Duration.zero),
       onboardingStorage: OnboardingStorage(),
-      favoritesRepository: FakeFavoritesRepository(
-        seed: const [FakeTaskRepository.demoFavoriteId],
-        latency: Duration.zero,
-      ),
+      favoritesRepository: favorites ??
+          FakeFavoritesRepository(
+            seed: const [FakeTaskRepository.demoFavoriteId],
+            latency: Duration.zero,
+          ),
     );
 
     await tester.pumpWidget(CadenciaApp(dependencies: dependencies));
@@ -148,5 +152,42 @@ void main() {
       findsOneWidget,
       reason: 'a relação de ids é gravada no aparelho a cada mudança',
     );
+  });
+
+  testWidgets('falha ao gravar o favorito avisa e desfaz a estrela',
+      (tester) async {
+    useTallScreen(tester);
+    await startApp(
+      tester,
+      favorites: FakeFavoritesRepository(
+        latency: Duration.zero,
+        shouldFailSave: true,
+      ),
+    );
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.byIcon(Icons.checklist_outlined),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(
+      find.byTooltip('Marcar Estudar Flutter por 30 minutos como favorita'),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Não foi possível salvar o favorito. Tente de novo.'),
+      findsOneWidget,
+      reason: 'a gravação falhou e ninguém pode ficar sem saber',
+    );
+    expect(
+      find.byTooltip('Marcar Estudar Flutter por 30 minutos como favorita'),
+      findsOneWidget,
+      reason: 'a estrela volta: marca que não persiste é mentira',
+    );
+    expect(find.text('Favoritas (0)'), findsOneWidget);
   });
 }

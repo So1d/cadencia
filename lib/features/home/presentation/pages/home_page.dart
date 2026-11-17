@@ -14,6 +14,7 @@ import '../../../../features/events/presentation/pages/event_details_page.dart';
 import '../../../../features/events/presentation/widgets/event_dialog.dart';
 import '../../../../features/events/presentation/widgets/event_tile.dart';
 import '../../../../features/favorites/presentation/favorites_controller.dart';
+import '../../../../features/favorites/presentation/toggle_favorite.dart';
 import '../../../../features/profile/domain/entities/profile_focus.dart';
 import '../../../../features/profile/presentation/pages/profile_form_page.dart';
 import '../../../../features/profile/presentation/profile_scope.dart';
@@ -328,7 +329,8 @@ class _TasksSection extends StatelessWidget {
                   isFavorite: favorites.isFavorite(task.id),
                   onTap: () => onOpen(task),
                   onToggle: (value) => schedule.toggleTask(task, value),
-                  onToggleFavorite: () => favorites.toggle(task.id),
+                  onToggleFavorite: () =>
+                      toggleFavoriteWithFeedback(context, task),
                 ),
               if (tasks.isNotEmpty)
                 Align(

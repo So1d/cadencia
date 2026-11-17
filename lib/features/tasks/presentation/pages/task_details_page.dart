@@ -10,6 +10,7 @@ import '../../../../core/utils/date_helpers.dart';
 import '../../../../state/schedule_controller.dart';
 import '../../../../state/schedule_scope.dart';
 import '../../../favorites/presentation/favorites_controller.dart';
+import '../../../favorites/presentation/toggle_favorite.dart';
 import '../../../favorites/presentation/widgets/favorite_button.dart';
 import '../../domain/task.dart';
 import '../widgets/task_dialog.dart';
@@ -104,7 +105,7 @@ class TaskDetailsPage extends StatelessWidget {
           FavoriteButton(
             taskTitle: current.title,
             isFavorite: isFavorite,
-            onPressed: () => favorites.toggle(current.id),
+            onPressed: () => toggleFavoriteWithFeedback(context, current),
           ),
           IconButton(
             tooltip: 'Editar tarefa',

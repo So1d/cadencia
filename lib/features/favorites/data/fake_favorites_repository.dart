@@ -9,6 +9,7 @@ class FakeFavoritesRepository implements FavoritesRepository {
     List<String>? seed,
     this.latency = const Duration(milliseconds: 200),
     this.shouldFail = false,
+    this.shouldFailSave = false,
   }) : _saved = [...?seed];
 
   /// Tempo simulado de leitura/gravação.
@@ -16,6 +17,9 @@ class FakeFavoritesRepository implements FavoritesRepository {
 
   /// Quando verdadeiro, [fetchAll] lança exceção.
   final bool shouldFail;
+
+  /// Quando verdadeiro, [saveAll] lança exceção sem gravar nada.
+  final bool shouldFailSave;
 
   List<String> _saved;
 
@@ -37,6 +41,9 @@ class FakeFavoritesRepository implements FavoritesRepository {
   Future<void> saveAll(List<String> taskIds) async {
     if (latency > Duration.zero) {
       await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    if (shouldFailSave) {
+      throw Exception('Falha simulada ao gravar os favoritos.');
     }
     _saved = [...taskIds];
   }
