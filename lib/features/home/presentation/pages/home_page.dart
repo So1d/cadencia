@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../app/routes/fade_route.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_layout.dart';
+import '../../../../app/theme/app_radius.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../core/load_status.dart';
 import '../../../../core/widgets/section_header.dart';
@@ -16,7 +18,10 @@ import '../../../../features/profile/domain/entities/profile_focus.dart';
 import '../../../../features/profile/presentation/pages/profile_form_page.dart';
 import '../../../../features/profile/presentation/profile_scope.dart';
 import '../../../../features/tasks/domain/task.dart';
+import '../../../../features/tasks/domain/task_priority.dart';
+import '../../../../features/tasks/domain/task_query.dart';
 import '../../../../features/tasks/presentation/pages/task_details_page.dart';
+import '../../../../features/tasks/presentation/task_query_controller.dart';
 import '../../../../features/tasks/presentation/widgets/task_dialog.dart';
 import '../../../../features/tasks/presentation/widgets/task_tile.dart';
 import '../../../../state/schedule_controller.dart';
@@ -26,8 +31,18 @@ import '../widgets/greeting_header.dart';
 import '../widgets/profile_prompt_card.dart';
 
 /// Aba "Hoje": saudação, progresso e o que importa nas próximas horas.
+///
+/// A Home não abre a aba Tarefas por conta própria: quem sabe qual aba está
+/// aberta é a casca. Ela pede a navegação por [onOpenTasks] e entrega os dados
+/// da intenção pelo `TaskQueryController`. Dois canais, um para dados e outro
+/// para navegação.
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.onOpenTasks});
+
+  /// Callback da casca: levar a pessoa à aba Tarefas.
+  final VoidCallback? onOpenTasks;
+
+  void _openTasks() => onOpenTasks?.call();
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +74,11 @@ class HomePage extends StatelessWidget {
       onOpen: (task) => Navigator.of(context).push(
         TaskDetailsPage.route(task),
       ),
+      onShowAll: () {
+        // "Ver todas" começa do zero: limpa os filtros e abre a aba inteira.
+        context.read<TaskQueryController>().clear();
+        _openTasks();
+      },
     );
 
     return Scaffold(
@@ -87,6 +107,24 @@ class HomePage extends StatelessWidget {
         ),
         children: [
           GreetingHeader(name: profile.name, now: now),
+          const SizedBox(height: AppSpacing.md),
+          _HomeSearchAndShortcuts(
+            onSearch: _openTasks,
+            onHighPriority: () {
+              // Atalho, não toggle: começa do zero e mostra só a prioridade
+              // alta, sem herdar busca ou prazo de antes.
+              context
+                  .read<TaskQueryController>()
+                  .showOnly(priority: TaskPriority.high);
+              _openTasks();
+            },
+            onDueToday: () {
+              context
+                  .read<TaskQueryController>()
+                  .showOnly(due: TaskDueFilter.today);
+              _openTasks();
+            },
+          ),
           const SizedBox(height: AppSpacing.md),
           if (!profile.isComplete) ...[
             ProfilePromptCard(
@@ -247,6 +285,7 @@ class _TasksSection extends StatelessWidget {
     required this.tasks,
     required this.onAdd,
     required this.onOpen,
+    required this.onShowAll,
   });
 
   final ScheduleController schedule;
@@ -254,6 +293,7 @@ class _TasksSection extends StatelessWidget {
   final List<Task> tasks;
   final VoidCallback onAdd;
   final ValueChanged<Task> onOpen;
+  final VoidCallback onShowAll;
 
   @override
   Widget build(BuildContext context) {
@@ -290,8 +330,103 @@ class _TasksSection extends StatelessWidget {
                   onToggle: (value) => schedule.toggleTask(task, value),
                   onToggleFavorite: () => favorites.toggle(task.id),
                 ),
+              if (tasks.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: onShowAll,
+                    icon: const Icon(Icons.arrow_forward, size: 18),
+                    label: const Text('Ver todas as tarefas'),
+                  ),
+                ),
             ],
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Campo-botão de busca e os atalhos que abrem a aba Tarefas já recortada.
+///
+/// O campo aqui não digita: a aba Tarefas é que tem o campo de verdade, com
+/// atraso para não filtrar a cada letra. Este atalho só leva até lá.
+class _HomeSearchAndShortcuts extends StatelessWidget {
+  const _HomeSearchAndShortcuts({
+    required this.onSearch,
+    required this.onHighPriority,
+    required this.onDueToday,
+  });
+
+  final VoidCallback onSearch;
+  final VoidCallback onHighPriority;
+  final VoidCallback onDueToday;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          button: true,
+          label: 'Buscar tarefas',
+          child: InkWell(
+            onTap: onSearch,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.sm + 4,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.bgInput,
+                border: Border.all(color: AppColors.border),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.search, size: 20, color: AppColors.textMuted),
+                  SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Buscar tarefas...',
+                      style: TextStyle(color: AppColors.textMuted),
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward,
+                    size: 16,
+                    color: AppColors.textMuted,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.xs,
+          children: [
+            ActionChip(
+              avatar: const Icon(
+                Icons.flag,
+                size: 16,
+                color: AppColors.danger,
+              ),
+              label: const Text('Alta prioridade'),
+              onPressed: onHighPriority,
+            ),
+            ActionChip(
+              avatar: const Icon(
+                Icons.event_available_outlined,
+                size: 16,
+                color: AppColors.primary,
+              ),
+              label: const Text('Vence hoje'),
+              onPressed: onDueToday,
+            ),
+          ],
         ),
       ],
     );
