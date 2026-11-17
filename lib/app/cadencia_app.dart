@@ -6,6 +6,7 @@ import '../features/favorites/presentation/favorites_controller.dart';
 import '../features/profile/presentation/profile_controller.dart';
 import '../features/profile/presentation/profile_scope.dart';
 import '../features/startup/presentation/splash_page.dart';
+import '../features/tasks/presentation/task_query_controller.dart';
 import '../state/schedule_controller.dart';
 import '../state/schedule_scope.dart';
 import 'app_dependencies.dart';
@@ -32,6 +33,7 @@ class _CadenciaAppState extends State<CadenciaApp> {
   late final ScheduleController _scheduleController;
   late final ProfileController _profileController;
   late final FavoritesController _favoritesController;
+  late final TaskQueryController _taskQueryController;
 
   @override
   void initState() {
@@ -49,6 +51,7 @@ class _CadenciaAppState extends State<CadenciaApp> {
     _favoritesController = FavoritesController(
       repository: _dependencies.favoritesRepository,
     );
+    _taskQueryController = TaskQueryController();
     // Os favoritos são um punhado de ids: carrega na abertura, antes da shell.
     _favoritesController.load();
   }
@@ -58,6 +61,7 @@ class _CadenciaAppState extends State<CadenciaApp> {
     _scheduleController.dispose();
     _profileController.dispose();
     _favoritesController.dispose();
+    _taskQueryController.dispose();
     super.dispose();
   }
 
@@ -65,25 +69,28 @@ class _CadenciaAppState extends State<CadenciaApp> {
   Widget build(BuildContext context) {
     // Acima do MaterialApp: as rotas empilhadas também enxergam os escopos.
     //
-    // O FavoritesController entra pelo `provider`, como pede a Etapa 1: as
-    // telas leem com `context.watch`/`context.read`. A instância é criada aqui
-    // (e não no `create:`) porque precisamos disparar o `load()` no boot; o
+    // Favoritos e consulta de tarefas entram pelo `provider`: as telas leem
+    // com `context.watch`/`context.read`. As instâncias são criadas aqui (e não
+    // no `create:`) porque os favoritos precisam do `load()` no boot; o
     // dispose continua explícito no State.
     return ChangeNotifierProvider<FavoritesController>.value(
       value: _favoritesController,
-      child: ScheduleScope(
-        controller: _scheduleController,
-        child: ProfileScope(
-          controller: _profileController,
-          child: MaterialApp(
-            title: 'Cadência',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.dark,
-            locale: const Locale('pt', 'BR'),
-            supportedLocales: const [Locale('pt', 'BR')],
-            localizationsDelegates: GlobalMaterialLocalizations.delegates,
-            home: SplashPage(
-              onboardingStorage: _dependencies.onboardingStorage,
+      child: ChangeNotifierProvider<TaskQueryController>.value(
+        value: _taskQueryController,
+        child: ScheduleScope(
+          controller: _scheduleController,
+          child: ProfileScope(
+            controller: _profileController,
+            child: MaterialApp(
+              title: 'Cadência',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.dark,
+              locale: const Locale('pt', 'BR'),
+              supportedLocales: const [Locale('pt', 'BR')],
+              localizationsDelegates: GlobalMaterialLocalizations.delegates,
+              home: SplashPage(
+                onboardingStorage: _dependencies.onboardingStorage,
+              ),
             ),
           ),
         ),

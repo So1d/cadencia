@@ -25,6 +25,15 @@ void main() {
         InMemorySharedPreferencesAsync.withData({'onboardingCompleted': true});
   });
 
+  // A tela de Tarefas agora tem busca, chips e barra: em 800x600 a lista
+  // começa abaixo da dobra e o `SliverList` só monta o que aparece.
+  void useTallScreen(WidgetTester tester) {
+    tester.view.physicalSize = const Size(800, 2200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  }
+
   Future<void> startApp(WidgetTester tester) async {
     final dependencies = AppDependencies(
       taskRepository: FakeTaskRepository(
@@ -46,6 +55,7 @@ void main() {
 
   testWidgets('modo demo abre com uma favorita e a estrela chega ao detalhe',
       (tester) async {
+    useTallScreen(tester);
     await startApp(tester);
 
     await tester.tap(
@@ -83,6 +93,7 @@ void main() {
   });
 
   testWidgets('favorito sobrevive a fechar e abrir o app', (tester) async {
+    useTallScreen(tester);
     final preferences = SharedPreferencesAsync();
 
     Future<void> openApp() async {

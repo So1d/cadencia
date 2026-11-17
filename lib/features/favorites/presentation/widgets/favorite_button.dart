@@ -34,10 +34,11 @@ class FavoriteButton extends StatelessWidget {
           : 'Marcar $taskTitle como favorita',
       onPressed: onPressed,
       iconSize: compact ? 18 : 24,
-      visualDensity: compact ? VisualDensity.compact : null,
       padding: compact ? EdgeInsets.zero : null,
+      // 48x48 é o alvo mínimo recomendado: abaixo disso, quem tem pouca
+      // precisão motora erra a estrela e marca a tarefa errada.
       constraints: compact
-          ? const BoxConstraints(minWidth: 36, minHeight: 36)
+          ? const BoxConstraints(minWidth: 48, minHeight: 48)
           : null,
       icon: Icon(
         isFavorite ? Icons.star : Icons.star_border,

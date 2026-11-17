@@ -3,6 +3,7 @@ import 'package:cadencia/features/favorites/data/fake_favorites_repository.dart'
 import 'package:cadencia/features/favorites/presentation/favorites_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_controller.dart';
 import 'package:cadencia/features/profile/presentation/profile_scope.dart';
+import 'package:cadencia/features/tasks/presentation/task_query_controller.dart';
 import 'package:cadencia/state/schedule_controller.dart';
 import 'package:cadencia/state/schedule_scope.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,7 @@ FavoritesController buildFavorites({List<String> seed = const []}) {
 Widget wrapWithScopes({
   ScheduleController? schedule,
   FavoritesController? favorites,
+  TaskQueryController? taskQuery,
   required ProfileController profile,
   required Widget home,
 }) {
@@ -40,6 +42,11 @@ Widget wrapWithScopes({
   if (schedule != null) {
     app = ScheduleScope(controller: schedule, child: app);
   }
+
+  app = ChangeNotifierProvider<TaskQueryController>.value(
+    value: taskQuery ?? TaskQueryController(),
+    child: app,
+  );
 
   app = ChangeNotifierProvider<FavoritesController>.value(
     value: favorites ?? buildFavorites(),
